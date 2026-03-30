@@ -1,5 +1,7 @@
+// Playwright and Allure reporting
 const { test } = require('@playwright/test'), { allure } = require('allure-playwright');
 const BasePage = require('../base/BasePage');
+// Workflow steps for each form section
 const { LoginFlow,
         ClientInfoFlow,
         ContactInfoFlow,
@@ -8,12 +10,14 @@ const { LoginFlow,
 const { setup, teardown } = require('../fixtures/Hooks');
 const { iteration } = require('../fixtures/User interface');
 
+// End-to-end sanity suite: login then fill each form section in order
 class SanityPage extends BasePage {
 
     runTests() {
         setup(this);
         teardown(this);
 
+        // Tests must run sequentially (each step depends on the previous)
         test.describe.configure({ mode: 'serial' });
         test.describe('Sanity test', () => {
 
@@ -22,6 +26,7 @@ class SanityPage extends BasePage {
                 await LoginFlow.login(this.page);
             });
 
+            // Loop allows scaling to multiple data-driven iterations
             for (let i = 0; i < 1; i++) {
                 test(`#2 Add client - iteration ${i + 1}`, async () => {
                     await allure.feature('Client info');
@@ -47,5 +52,6 @@ class SanityPage extends BasePage {
 
 module.exports = SanityPage;
 
+// Bootstrap: instantiate and register tests with Playwright
 const sanity = new SanityPage(null);
 sanity.runTests();
