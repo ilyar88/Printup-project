@@ -14,7 +14,7 @@ class ProjectInfoFlow {
         await typeText(projectInfo.projectName(), data.Project_name);
         await typeText(projectInfo.subtitle(), data.Subtitle);
         await selectDate(projectInfo.date(), data.End_date);
-        await isChecked(projectInfo.approved(), data.Final_approval === 'Approved' ? 'yes' : 'no');
+        await isChecked(projectInfo.approved(), data.Final_approval);
         await selectOption(projectInfo.urgency(), 'value', data.Urgency);
         const totalMinutes = Math.round(data.Hour * 24 * 60);
         const hh = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
