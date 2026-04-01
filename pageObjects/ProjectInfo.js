@@ -4,7 +4,7 @@ class ProjectInfo {
      */
     constructor(page) {
         this.page = page;
-    }
+    } 
 
     projectEstablish() {
         return this.page.locator("button.rounded-none").nth(0);
