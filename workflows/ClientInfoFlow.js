@@ -2,9 +2,13 @@ const ClientInfo = require('../pageObjects/ClientInfo');
 const { typeText, click, isChecked } = require('../fixtures/User interface');
 const { readExcel } = require('../TDD/ExcelReader');
 
+// Automates the Client Info page by filling in contact details from test data.
 class ClientInfoFlow {
     static data = readExcel('ClientInfoFlow');
 
+    // Fills the client info form: creates a new customer, enters contact fields,
+    // toggles phone/email checkboxes, and submits via "Add Contact".
+    //Extract the phone number from the text without the condition "yes" or "no".
     static async clientInfoFlow(page, data) {
         const clientInfo = new ClientInfo(page);
         const checkboxes = clientInfo.checkboxes();
