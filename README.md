@@ -95,14 +95,23 @@ npm test edge
 npm test firefox
 ```
 
-### Generate Allure report
+### Run tests and open Allure report
 ```bash
-npm run test:report
+npm run test:report -- chrome
 ```
 
-### Open Allure report only
+These scripts run the automation and open the Allure report:
+```json
+"scripts": {
+    "test": "npx playwright test --config=configuration/playwright.config.js --project chrome",
+    "test:report": "npm test && npm run allure:report",
+    "allure:report": "npx allure generate allure-results --clean allure-report && npx allure open allure-report"
+}
+```
+
+### For example with Chrome browser:
 ```bash
-npm run allure:report
+npm npm run test:report
 ```
 
 ---
