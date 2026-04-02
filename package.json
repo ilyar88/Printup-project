@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --config=configuration/playwright.config.js",
-    "test:headed": "npx playwright test --config=configuration/playwright.config.js --headed",
+    "test": "npx playwright test --config=configuration/playwright.config.js --project",
     "test:report": "npm run test && npm run allure:report",
     "allure:report": "npx allure generate allure-results --clean allure-report && npx allure open allure-report"
   },
