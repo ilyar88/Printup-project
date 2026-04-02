@@ -134,7 +134,7 @@ Configured in `playwright.config.js` with three projects:
 - Every UI action is logged as an **Allure step**
 - Tests are tagged with **Allure features** (Login, Client info, etc.)
 - **Screenshots** are automatically captured and attached on failure
-- Sensitive data (passwords, emails) is **masked** in reports
+- Sensitive data (passwords, emails) is **masked** in the report
 
 ### Screenshot on Failure
 Saved to `screenshots/{YYYY-MM-DD}/{testTitle}.png` and attached to the Allure report.
