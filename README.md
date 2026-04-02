@@ -1,6 +1,6 @@
 # PrintUp - E2E Test Automation
 
-End-to-end test automation suite for the [PrintUp](https://printup2.netlify.app) web application, built with **Playwright** and **Allure** reporting.
+End-to-end test automation suite for the PrintUp web application, built with **Playwright** and **Allure** reporting.
 
 ---
 
@@ -15,7 +15,7 @@ Printup project/
 ├── fixtures/                    # Reusable test utilities
 │   ├── Assert.js                # Assertion helpers with Allure steps
 │   ├── Hooks.js                 # Setup, teardown & screenshot on failure
-│   ├── User interface.js        # UI interactions (click, type, select)
+│   ├── User interface.js        # UI interactions (click, type, select, check and upload file)
 │   └── Wait fixtures.js         # Wait conditions & synchronization
 ├── pageObjects/                 # Page Object Model (POM)
 │   ├── Login.js
