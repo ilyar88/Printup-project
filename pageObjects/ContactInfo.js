@@ -4,7 +4,7 @@ class ContactInfo {
      */
     constructor(page) {
         this.page = page;
-    } 
+    }
 
     fullName() {
         return this.page.locator("input[name='contacts.0.name']");
