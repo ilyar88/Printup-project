@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --config=configuration/playwright.config.js --project chrome",
+    "test": "npx rimraf allure-results && npx playwright test --config=configuration/playwright.config.js --project chrome",
     "test:report": "npm test && npm run allure:report",
     "allure:report": "npx allure generate allure-results --clean allure-report && npx allure open allure-report"
   },
@@ -19,6 +19,7 @@
   "dependencies": {
     "allure-playwright": "^3.6.0",
     "dotenv": "^17.3.1",
+    "openai": "^6.33.0",
     "playwright": "^1.58.1",
     "playwright-core": "^1.58.1",
     "xlsx": "^0.18.5"
