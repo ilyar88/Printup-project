@@ -9,7 +9,8 @@ End-to-end test automation suite for the PrintUp web application, built with **P
 ```
 Printup project/
 ├── base/                        # Base classes
-│   └── BasePage.js              # Browser lifecycle & navigation
+│   ├── BasePage.js              # Browser lifecycle & navigation
+│   └── SelfHealing.js           # AI-powered locator self-healing
 ├── configuration/
 │   └── playwright.config.js     # Playwright & browser config
 ├── fixtures/                    # Reusable test utilities
@@ -56,7 +57,7 @@ Printup project/
 | **Page Objects** | Encapsulate UI element locators per page |
 | **Fixtures** | Reusable utilities: assertions, UI actions, waits, hooks |
 | **TDD** | Excel-driven test data parsed by ExcelReader |
-| **Base** | Browser launch, navigation, and config access |
+| **Base** | `BasePage` handles browser launch, navigation, and config access. `SelfHealing` wraps every `page.locator()` call — if a selector fails, it sends the broken selector and page HTML to OpenAI and retries with the AI-suggested replacement, then writes the fix back into the page object file |
 
 ---
 
@@ -91,7 +92,7 @@ npx playwright install --with-deps
 These scripts run the automation and open Allure report:
 ```json
 "scripts": {
-    "test": "npx playwright test --config=configuration/playwright.config.js --project chrome",
+    "test": "npx rimraf playwright test --config=configuration/playwright.config.js --project chrome",
     "test:report": "npm test && npm run allure:report",
     "allure:report": "npx allure generate allure-results --clean allure-report && npx allure open allure-report"
 }
