@@ -4,7 +4,7 @@ class ProjectInfo {
      */
     constructor(page) {
         this.page = page;
-    } 
+    }
 
     projectEstablish() {
         return this.page.locator("button.rounded-none").nth(0);
@@ -15,7 +15,7 @@ class ProjectInfo {
     }
 
     projectName() {
-        return this.page.locator("input[name='name']");
+        return this.page.locator("input#email");
     }
 
     subtitle() {
