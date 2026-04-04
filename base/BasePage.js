@@ -1,10 +1,11 @@
 const { chromium } = require('@playwright/test');
 const { config } = require('../configuration/playwright.config');
+const { wrapPage } = require('./SelfHealing');
 
 class BasePage {
 
     constructor(page) {
-        this.page = page;
+        this.page = wrapPage(page);
         this.baseUrl = config.baseUrl;
     }
 
