@@ -5,7 +5,7 @@ const config = {
     baseUrl: process.env.URL,
     applitoolsKey: process.env.APPLITOOLS_KEY,
     browser: {
-        headless: false,
+        headless: process.env.HEADLESS === 'true',
         slowMo: 300,
         viewport: { width: 1280, height: 720 },
     },
@@ -32,14 +32,13 @@ module.exports = defineConfig({
         trace: 'on-first-retry',
     },
     projects: [
-        { name: 'chrome', channel: 'chrome' },
-        { name: 'edge', channel: 'msedge' },
+        { name: 'chrome', browserName: 'chromium' },
+        { name: 'edge', browserName: 'chromium' },
         { name: 'firefox', browserName: 'firefox' },
-    ].map(({ name, channel, browserName }) => ({
+    ].map(({ name, browserName }) => ({
         name,
         use: {
-            browserName: browserName || 'chromium',
-            ...(channel && { channel }),
+            browserName,
             launchOptions: {
                 slowMo: config.browser.slowMo,
                 ...(browserName !== 'firefox' && { args: config.browser.headless ? [] : ['--start-maximized'] }),
