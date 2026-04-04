@@ -4,7 +4,7 @@ class ClientInfo {
      */
     constructor(page) {
         this.page = page;
-    } 
+    }
 
     newCustomer() {
         return this.page.locator("header > div > button.inline-flex");
@@ -53,7 +53,7 @@ class ClientInfo {
         return this.page.locator("button[type='button'].font-medium.text-primary");
     }
 
-     addContact() {
+    addContact() {
         return this.page.locator("button.border-dashed");
     }
 
