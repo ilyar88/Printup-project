@@ -15,7 +15,7 @@ class ProjectInfo {
     }
 
     projectName() {
-        return this.page.locator("input#email");
+        return this.page.locator("input[name='name']");
     }
 
     subtitle() {
@@ -39,7 +39,7 @@ class ProjectInfo {
     }
 
     status() {
-        return this.page.locator("select[style*='padding']");
+        return this.page.locator("div.flex.items-center.justify-end > select");
     }
 
     folderPath() {
@@ -55,7 +55,7 @@ class ProjectInfo {
     * באריזה - In the package
     ***/
     async selects() {
-        return await this.page.locator("div.grid-cols-3 select").all();;
+        return await this.page.locator("div.grid-cols-3 select").all();
     }
 }
 
