@@ -1,5 +1,6 @@
 name: Run PrintUp website tests
 
+# Manually triggered — select a browser before running
 on:
   workflow_dispatch:
     inputs:
@@ -13,7 +14,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    environment: Configuration_settings
+    environment: Configuration_settings  # supplies credentials and env vars
     steps:
       - uses: actions/checkout@v4
 
@@ -33,7 +34,7 @@ jobs:
         run: npx playwright test --config=configuration/playwright.config.js --project ${{ github.event.inputs.browser }}
 
       - name: Generate Allure report
-        if: always() 
+        if: always()  # generate report even if tests fail
         run: npx allure generate allure-results --clean -o allure-report
 
       - name: Upload Allure report
@@ -43,3 +44,15 @@ jobs:
           name: allure-report-${{ github.event.inputs.browser }}
           path: allure-report/
           retention-days: 30
+
+  load-test:
+    needs: test  # runs after E2E tests complete
+    runs-on: ubuntu-latest
+    environment: Configuration_settings
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run k6 load test
+        uses: ./.github/actions/k6-load-test
+        with:
+          base_url: ${{ vars.URL }}
