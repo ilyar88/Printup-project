@@ -1,5 +1,5 @@
 const ProjectInfo = require('../pageObjects/ProjectInfo');
-const ClientInfo = require('../pageObjects/ClientInfo');
+const ItemCenter = require('../pageObjects/ItemCenter');
 const { typeText, click, selectOption, selectDate, isChecked } = require('../fixtures/User interface');
 const { readExcel } = require('../TDD/ExcelReader');
 
@@ -8,7 +8,7 @@ class ProjectInfoFlow {
 
     static async projectInfoFlow(page, data) {
         const projectInfo = new ProjectInfo(page);
-        const clientInfo = new ClientInfo(page);
+        const itemCenter = new ItemCenter(page);
         await click(projectInfo.projectEstablish());
         await selectOption(projectInfo.customerName(), 'value', data.name_surname);
         await typeText(projectInfo.projectName(), data.Project_name);
@@ -16,6 +16,7 @@ class ProjectInfoFlow {
         await selectDate(projectInfo.date(), data.End_date);
         await isChecked(projectInfo.approved(), data.Final_approval);
         await selectOption(projectInfo.urgency(), 'value', data.Urgency);
+        // Excel stores time as a fraction of a day — convert to HH:MM
         const totalMinutes = Math.round(data.Hour * 24 * 60);
         const hh = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
         const mm = String(totalMinutes % 60).padStart(2, '0');
@@ -23,7 +24,7 @@ class ProjectInfoFlow {
         await selectOption(projectInfo.status(), 'value', data.Status_condition);
         await typeText(projectInfo.folderPath(), data.Project_path);
         await typeText(projectInfo.notes(), data.Notes);
-        await click(clientInfo.nextButton());
+        await click(itemCenter.items('חומרים'));  // navigate to Materials panel
     }
 }
 
