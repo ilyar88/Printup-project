@@ -1,0 +1,34 @@
+name: k6 Load Test
+
+# Manually triggered — select virtual users and hold duration before running
+on:
+  workflow_dispatch:
+    inputs:
+      vus:
+        description: 'Virtual users'
+        required: false
+        default: '10'
+      duration:
+        description: 'Hold duration (e.g. 30s, 1m)'
+        required: false
+        default: '30s'
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    environment: Configuration_settings  # supplies the URL variable
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run k6 load test
+        uses: ./.github/actions/k6-load-test
+        with:
+          base_url: ${{ vars.URL }}
+
+  report:
+    needs: load-test
+    runs-on: ubuntu-latest
+    if: always()  # report even if the load-test job fails
+    steps:
+      - name: Load test status
+        run: echo "Load test completed with result ${{ needs.load-test.result }}"
