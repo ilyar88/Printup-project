@@ -5,10 +5,11 @@ const { wrapPage } = require('./SelfHealing');
 class BasePage {
 
     constructor(page) {
-        this.page = wrapPage(page);
+        this.page = wrapPage(page);  // wraps page with self-healing proxy
         this.baseUrl = config.baseUrl;
     }
 
+    // Launches browser, opens a maximized context, navigates to baseUrl and returns the page instance
     static async openBrowser() {
         const browser = await chromium.launch({
             headless: config.browser.headless,
@@ -16,7 +17,7 @@ class BasePage {
             args: ['--start-maximized'],
         });
         const context = await browser.newContext({
-            viewport: null,
+            viewport: null,  // viewport: null respects the --start-maximized arg
         });
         const page = await context.newPage();
         const instance = new this(page);
