@@ -7,11 +7,11 @@ class Login {
     }
 
     email() {
-        return this.page.locator('#email');
+        return this.page.locator("input[type='email']");
     }
 
     password() {
-        return this.page.locator('#password');
+        return this.page.locator("input[type='password']");
     }
 
     forgotPassword() {
@@ -22,7 +22,7 @@ class Login {
         return this.page.locator("button[type='submit']");
     }
 
-    Signup() {
+    signup() {
         return this.page.locator("button[type='button']").nth(1);
     }
 }
