@@ -6,8 +6,8 @@ class UploadFiles {
         this.page = page;
     }
 
-    uploadFiles() {
-        return this.page.locator("input[type='file']");
+    uploadFile() {
+        return this.page.locator("div.overflow-auto > div > div > button");
     }
 
     designFiles() {
