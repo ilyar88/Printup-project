@@ -12,6 +12,7 @@ function setup(page) {
     });
 
     test.afterEach(async ({}, testInfo) => {
+        // Capture and attach a screenshot to Allure only when the test fails
         if (testInfo.status !== testInfo.expectedStatus) {
             const date = new Date().toISOString().split('T')[0];
             const dir = path.resolve(__dirname, `../screenshots/${date}`);
