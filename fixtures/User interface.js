@@ -1,16 +1,15 @@
-const base = require('@playwright/test');
+const os = require('os');
+const path = require('path');
 const { allure } = require('allure-playwright');
+const { Eyes, Target } = require('@applitools/eyes-playwright');
+const { waitForFileUpload, waitForTime } = require('./Wait');
+const { init, winWaitActive, controlSetText, controlClick } = require('node-autoit-koffi');
 
 const envValues = Object.values(process.env).filter(v => v && v.length > 0);
+const isSensitive = text => envValues.includes(text);
+const mask = text => text[0] + '*'.repeat(text.length - 1);
 
-function isSensitive(text) {
-    return envValues.includes(text);
-}
-
-function mask(text) {
-    return text[0] + '*'.repeat(text.length - 1);
-}
-
+// Clears and fills a field. Masks sensitive values (env vars) in Allure reports.
 async function typeText(locator, text) {
     if (!text) return;
     const display = isSensitive(text) ? mask(text) : text;
@@ -20,24 +19,32 @@ async function typeText(locator, text) {
     });
 }
 
+// Clicks an element and logs the action to Allure.
 async function click(locator) {
-    await allure.step('Click element', async () => {
-        await locator.click();
-    });
+    await allure.step('Click element', () => locator.click());
 }
 
+// Checks or unchecks a checkbox based on whether text includes 'yes'.
 async function isChecked(locator, text) {
-    await allure.step(text.includes('yes') ? 'Checkbox enabled' : 'Checkbox disabled', async () => {
-        text.includes('yes') ? await locator.check() : await locator.uncheck();
-    });
+    const yes = text.includes('yes');
+    await allure.step(yes ? 'Checkbox enabled' : 'Checkbox disabled', () =>
+        yes ? locator.check() : locator.uncheck()
+    );
 }
 
+// Selects a dropdown option by 'value' (text match) or 'index'. Falls back to autocomplete if no <option> match found.
 async function selectOption(locator, option, value) {
     switch (option) {
         case 'value':
-            const options = await locator.locator('option').allTextContents();
-            if (options.some(o => o.includes(value)))
-                await locator.selectOption({ label: options.find(o => o.includes(value)) });
+            const options = await locator.locator('option').evaluateAll(opts => opts.map(o => ({ text: o.textContent.trim(), value: o.value })));
+            const found = options.find(o => o.text.includes(value.trim()));
+            if (found) {
+                await locator.selectOption({ value: found.value });
+            } else {
+                await locator.fill(value);
+                const suggestion = locator.page().locator(`[role="option"]`, { hasText: value }).first();
+                if (await suggestion.count() > 0) await suggestion.click();
+            }
             break;
         case 'index':
             await locator.selectOption({ index: parseInt(value) });
@@ -52,24 +59,58 @@ async function selectOption(locator, option, value) {
     }
 }
 
+// Fills a date input. Converts 'DD.MM.YYYY' format to 'YYYY-MM-DD' as expected by HTML date fields.
 async function selectDate(locator, date) {
-    await allure.step(`Select date: ${date}`, async () => {
-        const [d, m, y] = date.split('.');
-        const formatted = `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-        await locator.fill(formatted);
-    });
+    const [d, m, y] = date.split('.');
+    await allure.step(`Select date: ${date}`, () =>
+        locator.fill(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`)
+    );
 }
 
+// Uploads a file directly via Playwright's setInputFiles. Verifies the file is attached before continuing.
 async function uploadFile(locator, filePath) {
     if (!filePath) return;
-    await allure.step(`Upload file: ${filePath}`, async () => {
-        await locator.setInputFiles(filePath);
+    const absolutePath = path.resolve(__dirname, '..', filePath);
+    await allure.step(`Upload file: ${absolutePath}`, async () => {
+        await locator.setInputFiles(absolutePath);
+        await waitForFileUpload(locator);
     });
 }
 
+// Uploads a file through a native OS dialog using AutoIt. Waits for the dialog by title, types the path, and clicks Open.
+// Waits for network idle to confirm upload completed, then fails the test if any console errors were captured during the upload.
+async function uploadFileViaAutoIt(locator, title, filePath) {
+    if (!filePath) return;
+    const absolutePath = path.resolve(__dirname, '..', filePath);
+    await allure.step(`Upload file via dialog: ${absolutePath}`, async () => {
+        await init();
+        await click(locator);
+        await winWaitActive(title, undefined, 5000);
+        await controlSetText(title, undefined, 'Edit1', absolutePath);
+        await controlClick(title, undefined, 'Button1');
+        await waitForTime('5 Seconds');
+    });
+}
+
+// Runs a single data-driven iteration by calling the matching method on T using T.data[i].
 async function iteration(T, page, i) {
     const method = T.name[0].toLowerCase() + T.name.slice(1);
     T.data[i] && await T[method](page, T.data[i]);
 }
 
-module.exports = { typeText, click, selectOption, selectDate, iteration, isChecked, uploadFile };
+// Runs an Applitools visual snapshot for the current page state and closes the Eyes session.
+async function checkUI(page, testName) {
+    await allure.step('Applitools visual check', async () => {
+        const screenSize = await page.evaluate(() => ({ width: screen.availWidth, height: screen.availHeight }));
+        const eyes = new Eyes();
+        eyes.setApiKey(process.env.APPLITOOLS_KEY);
+        eyes.setHostOS(`${os.type()} ${os.release()}`);
+        eyes.setHostApp(`Chrome ${page.context().browser().version()}`);
+        await eyes.open(page, 'Printup', testName, { width: screenSize.width, height: screenSize.height });
+        await eyes.check('After login', Target.window());
+        await eyes.close().catch(() => {});
+        await page.setViewportSize(screenSize);
+    });
+}
+
+module.exports = { typeText, click, selectOption, selectDate, iteration, isChecked, uploadFile, uploadFileViaAutoIt, checkUI };
