@@ -10,7 +10,8 @@ End-to-end test automation suite for the PrintUp web application, built with **P
 Printup project/
 ├── base/                        # Base classes
 │   ├── BasePage.js              # Browser lifecycle & navigation
-│   └── SelfHealing.js           # AI-powered locator self-healing
+│   ├── SelfHealing.js           # Proxies page.locator(); on failure triggers Healer and patches the source file via AST rewrite
+│   └── Healer.js                # Core AI engine: collects POM/flow context and calls OpenAI to find a replacement CSS selector
 ├── configuration/
 │   └── playwright.config.js     # Playwright & browser config
 ├── fixtures/                    # Reusable test utilities
@@ -19,29 +20,37 @@ Printup project/
 │   ├── User interface.js        # UI interactions (click, type, select, check and upload file)
 │   └── Wait fixtures.js         # Wait conditions & synchronization
 ├── pageObjects/                 # Page Object Model (POM)
-│   ├── Login.js
-│   ├── ClientInfo.js
-│   ├── ContactInfo.js
-│   ├── ProjectInfo.js
-│   ├── MaterialsInfo.js
-│   └── UploadFiles.js
-├── workflows/                   # Test flow orchestration
-│   ├── index.js                 # Barrel export
-│   ├── LoginFlow.js
-│   ├── ClientInfoFlow.js
-│   ├── ContactInfoFlow.js
-│   ├── ProjectInfoFlow.js
-│   └── MaterialsInfoFlow.js
+│   ├── Login.js                 # Locators for the login form (email, password, and action buttons)
+│   ├── ClientInfo.js            # Locators for the client info form (name, contacts, checkboxes, notes)
+│   ├── ContactInfo.js           # Locators for the contact info form (name, phone, email, role, notes)
+│   ├── ProjectInfo.js           # Locators for the project info form (name, date, urgency, status, folder)
+│   ├── MaterialsInfo.js         # Locators for the materials form (dropdowns, thickness, category, save)
+│   ├── UploadFiles.js           # Locators for file upload elements (design, project files, work order, archive)
+│   ├── ItemCenter.js            # Toolbar button locator (by title attribute) for the item-center panel
+│   └── LayersInfo.js            # Locators for the layers panel: upload button, name input, layer description, and icon dropdowns
+├── workflows/                   # The main workflows of the E2E testing
+│   ├── index.js                 # Gathers all workflow classes into one object and exports
+│   ├── LoginFlow.js             # Fills credentials from env vars and verifies login
+│   ├── ClientInfoFlow.js        # Fills the client info form with test data
+│   ├── ContactInfoFlow.js       # Fills the contact info form with test data
+│   ├── ProjectInfoFlow.js       # Fills the project info form with test data
+│   └── MaterialsInfoFlow.js     # Selects material options, sets thickness and proceeds to next section
 ├── Suite/                       # Test specs
 │   └── SanityTest.spec.js       # Main sanity E2E suite
 ├── TDD/                         # Test data
 │   ├── ExcelReader.js           # Excel parser utility
 │   └── TestData.xlsx            # Data-driven test data
 ├── Matirals/                    # Upload test files (SVGs)
-├── .github/workflows/
-│   └── E2E test.yml             # GitHub Actions CI
+├── k6/
+│   └── loadTest.js              # k6 load test: ramp-up/hold/ramp-down stages with p95 response-time and error-rate thresholds
+├── .github/
+│   ├── actions/k6-load-test/
+│   │   └── action.yml           # Reusable composite action that installs k6 and runs the load test script
+│   └── workflows/
+│       ├── E2E test.yml         # GitHub Actions CI
+│       └── k6 load test.yml     # Manual-dispatch workflow to run k6 with configurable virtual users and duration
 ├── .env                         # Environment variables
-└── package.json
+└── package.json                 # NPM config with scripts for tests, Allure reports, and k6 load testing
 ```
 
 ---
@@ -170,3 +179,4 @@ The workflow (`.github/workflows/E2E test.yml`) runs via **manual dispatch** wit
 | [xlsx](https://www.npmjs.com/package/xlsx) | Excel data parsing |
 | [dotenv](https://www.npmjs.com/package/dotenv) | Environment variable management |
 | [GitHub Actions](https://github.com/features/actions) | CI/CD pipeline |
+| [Grafana k6](https://k6.io/) | Load & performance testing |
