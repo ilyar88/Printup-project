@@ -1,5 +1,5 @@
 const Login = require('../pageObjects/Login');
-const { typeText, click } = require('../fixtures/User interface');
+const { typeText, click, checkUI } = require('../fixtures/User interface');
 const { verifyEquals } = require('../fixtures/Assert');
 
 // Automates the login page using credentials from environment variables.
@@ -12,6 +12,7 @@ class LoginFlow {
         await click(loginPage.login());
         const title = await page.title();
         verifyEquals(title, 'Client');
+        //await checkUI(page, 'Login page UI');
     }
 }
 
