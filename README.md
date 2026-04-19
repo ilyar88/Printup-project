@@ -101,9 +101,10 @@ npx playwright install --with-deps
 These scripts run the automation and open Allure report:
 ```json
 "scripts": {
-    "test": "npx rimraf playwright test --config=configuration/playwright.config.js --project chrome",
+    "test": "npx rimraf allure-results && npx playwright test --config=configuration/playwright.config.js --project chrome",
     "test:report": "npm test && npm run allure:report",
-    "allure:report": "npx allure generate allure-results --clean allure-report && npx allure open allure-report"
+    "allure:report": "npx allure generate allure-results --clean -o allure-report && npx allure open allure-report",
+    "k6": "node -e \"require('dotenv').config();require('child_process').execFileSync('k6',['run','--env','BASE_URL='+process.env.URL,'k6/loadTest.js'],{stdio:'inherit'})\""
 }
 ```
 
@@ -167,6 +168,23 @@ The workflow (`.github/workflows/E2E test.yml`) runs via **manual dispatch** wit
 4. Install Playwright browsers
 5. Run E2E tests with selected browser
 6. Generate & upload Allure report as artifact (30-day retention)
+7. Run k6 load test after E2E tests complete
+
+---
+
+## Load testing - Grafana k6
+
+The workflow (`.github/workflows/k6 load test.yml`) runs via **manual dispatch** with configurable load parameters:
+
+**Trigger:** GitHub Actions > Run workflow > Set virtual users & duration
+
+**Stages:** Ramp up → Hold → Ramp down
+
+**Thresholds:**
+- 95% of requests must complete under 3s
+- Error rate must stay below 5%
+
+Results are uploaded as an artifact (30-day retention).
 
 ---
 
